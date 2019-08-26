@@ -54,3 +54,6 @@ thirdPartyAudit.enabled = false
 // Uncomment this to skip license header checks
 // licenseHeaders.enabled = false
 
+test {
+  jvmArgs '-Djava.net.preferIPv4Stack=true'
+}
