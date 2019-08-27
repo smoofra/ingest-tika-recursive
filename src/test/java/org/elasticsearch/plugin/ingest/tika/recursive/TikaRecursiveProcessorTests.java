@@ -17,6 +17,9 @@
 
 package org.elasticsearch.plugin.ingest.tika.recursive;
 
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import org.elasticsearch.ingest.IngestDocument;
 import org.elasticsearch.ingest.RandomDocumentPicks;
 import org.elasticsearch.test.ESTestCase;
@@ -30,6 +33,9 @@ import static org.hamcrest.Matchers.is;
 public class TikaRecursiveProcessorTests extends ESTestCase {
 
     public void testThatProcessorWorks() throws Exception {
+        //DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        //System.out.println("FOOOO " + dateFormat.format(new Date()));
+
         Map<String, Object> document = new HashMap<>();
         document.put("source_field", "fancy source field content");
         IngestDocument ingestDocument = RandomDocumentPicks.randomIngestDocument(random(), document);
@@ -40,6 +46,7 @@ public class TikaRecursiveProcessorTests extends ESTestCase {
         assertThat(data, hasKey("target_field"));
         assertThat(data.get("target_field"), is("fancy source field content"));
         // TODO add fancy assertions here
+
+        //System.out.println("BAR " + dateFormat.format(new Date()));
     }
 }
-

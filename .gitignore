@@ -1,6 +1,7 @@
 .idea/
 .gradle/
 build/
+bin/
 out/
 *.swp
 *-execution-hints.log
