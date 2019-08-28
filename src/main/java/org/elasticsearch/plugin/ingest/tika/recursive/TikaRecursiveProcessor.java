@@ -17,15 +17,15 @@
 
 package org.elasticsearch.plugin.ingest.tika.recursive;
 
+import org.apache.tika.Tika;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.sax.BasicContentHandlerFactory;
 import org.apache.tika.sax.RecursiveParserWrapperHandler;
 import org.apache.tika.parser.RecursiveParserWrapper;
-import org.apache.tika.Tika;
 import org.apache.tika.metadata.serialization.JsonMetadataList;
+import org.apache.tika.metadata.Metadata;
 
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.Parser;
@@ -38,8 +38,11 @@ import org.elasticsearch.ingest.Processor;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.elasticsearch.ingest.ConfigurationUtils.readStringProperty;
 
@@ -56,23 +59,6 @@ public class TikaRecursiveProcessor extends AbstractProcessor {
         super(tag);
         this.field = field;
         this.targetField = targetField;
-
-        // Parser parsers[] = new Parser[] {
-        //     new org.apache.tika.parser.html.HtmlParser(),
-        //     new org.apache.tika.parser.rtf.RTFParser(),
-        //     new org.apache.tika.parser.pdf.PDFParser(),
-        //     new org.apache.tika.parser.txt.TXTParser(),
-        //     new org.apache.tika.parser.microsoft.OfficeParser(),
-        //     new org.apache.tika.parser.microsoft.OldExcelParser(),
-        //     new org.apache.tika.parser.odf.OpenDocumentParser(),
-        //     new org.apache.tika.parser.iwork.IWorkPackageParser(),
-        //     new org.apache.tika.parser.xml.DcXMLParser(),
-        //     new org.apache.tika.parser.epub.EpubParser(),
-        // };
-        //
-        // AutoDetectParser autoParser = new AutoDetectParser(parsers);
-        // this.tika = new Tika(autoParser.getDetector(), autoParser);
-
         this.tika = new Tika();
     }
 
@@ -80,8 +66,12 @@ public class TikaRecursiveProcessor extends AbstractProcessor {
     public IngestDocument execute(IngestDocument ingestDocument) throws Exception {
 
         //byte[] bytes = ingestDocument.getFieldValueAsBytes(field);
+        //byte[] bytes = "foo bar baz".getBytes();
+        //byte[] bytes = Files.readAllBytes(Paths.get("/Users/lawrence_danna/Desktop/lol.eml"));
 
-        byte[] bytes = "foo bar baz".getBytes();
+        byte[] bytes = ingestDocument.getFieldValueAsBytes("data");
+
+        ingestDocument.setFieldValue("FOO", "BAR");
 
         RecursiveParserWrapper wrapper = new RecursiveParserWrapper(tika.getParser());
         BasicContentHandlerFactory factory = new BasicContentHandlerFactory(BasicContentHandlerFactory.HANDLER_TYPE.HTML, -1);
@@ -90,7 +80,10 @@ public class TikaRecursiveProcessor extends AbstractProcessor {
         ParseContext ctx = new ParseContext();
         wrapper.parse(new ByteArrayInputStream(bytes), handler, metadata, ctx);
 
-        JsonMetadataList.toJson(handler.getMetadataList(), new OutputStreamWriter(System.out));
+        Writer writer = new OutputStreamWriter(System.out);
+        JsonMetadataList.setPrettyPrinting(true);
+        JsonMetadataList.toJson(handler.getMetadataList(), writer);
+        writer.flush();
 
         String content = ingestDocument.getFieldValue(field, String.class);
         ingestDocument.setFieldValue(targetField, content);

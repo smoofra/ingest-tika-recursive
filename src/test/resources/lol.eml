@@ -1,0 +1,34 @@
+Return-Path: <larry@elder-gods.org>
+Received: from imapb017.mykolab.com ([unix socket])
+	 by imapb017.mykolab.com (Cyrus 2.5.11-41-gd53406f3f-Kolab-2.5.11-15.1.el7.kolab_16) with LMTPA;
+	 Sun, 25 Aug 2019 04:30:45 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from int-mx002.mykolab.com (unknown [10.9.13.2])
+	by imapb017.mykolab.com (Postfix) with ESMTPS id 904FF303
+	for <larry@elder-gods.org>; Sun, 25 Aug 2019 04:30:45 +0200 (CEST)
+Received: from ext-subm003.mykolab.com (unknown [10.9.6.3])
+	by int-mx002.mykolab.com (Postfix) with ESMTPS id 79F51405F
+	for <larry@elder-gods.org>; Sun, 25 Aug 2019 04:30:45 +0200 (CEST)
+From: Lawrence D'Anna <larry@elder-gods.org>
+Content-Type: multipart/mixed;
+	boundary="Apple-Mail=_AE1D79C6-B3E0-48FF-8A4D-485A2B635C5F"
+Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3564\))
+Subject: lol ololool
+Message-Id: <22E97CA4-C24D-4648-BB70-6B303D0E3830@elder-gods.org>
+Date: Sat, 24 Aug 2019 19:30:40 -0700
+To: Lawrence D'Anna <larry@elder-gods.org>
+
+
+--Apple-Mail=_AE1D79C6-B3E0-48FF-8A4D-485A2B635C5F
+Content-Disposition: attachment;
+	filename=foo.tgz
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name="foo.tgz"
+Content-Transfer-Encoding: base64
+
+H4sIAJTyYV0AA+3TuwrCMBQG4Mw+xcEH0HOay7GDgw7ipji6SLBRBK1SK3b0md0Fq/UC1tEiYj4I
+OSQZ/gz/0GZ9ZyOXNGfrdSPNUvF5iGiUAsFXIFBJkgFczguagaSWKJkCIkBiMiQgqyBLyW6b2iSP
+srT7xMVTN4lsHNvyO7vZLN1k/uamUPwEHvuPIIbdImqHilrEUmJNIqzSxcq1SRvDiGTChjFIAQdG
+174d1/uw6lr/dO//IZ9b9dOx1H9SL/3XrFAAVprq5s/73xsMoNsZ5Wvsy+15nvdHzush7A0ADAAA
+--Apple-Mail=_AE1D79C6-B3E0-48FF-8A4D-485A2B635C5F--

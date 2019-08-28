@@ -26,18 +26,38 @@ import org.elasticsearch.test.ESTestCase;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
 
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 
 public class TikaRecursiveProcessorTests extends ESTestCase {
 
+    public void testSimpleText() throws Exception {
+      byte[] bytes = "Hello, I am just a simple string".getBytes();
+
+      Map<String, Object> document = new HashMap<>();
+      document.put("source_field", "fancy source field content");
+      document.put("data", bytes);
+      IngestDocument ingestDocument = RandomDocumentPicks.randomIngestDocument(random(), document);
+
+      TikaRecursiveProcessor processor = new TikaRecursiveProcessor(randomAlphaOfLength(10), "source_field", "target_field");
+      Map<String, Object> data = processor.execute(ingestDocument).getSourceAndMetadata();
+
+      assertNotNull(data);
+    }
+
     public void testThatProcessorWorks() throws Exception {
         //DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         //System.out.println("FOOOO " + dateFormat.format(new Date()));
 
+        byte[] bytes = IOUtils.toByteArray(TikaRecursiveProcessorTests.class.getResourceAsStream("/lol.eml"));
+
         Map<String, Object> document = new HashMap<>();
         document.put("source_field", "fancy source field content");
+        document.put("data", bytes);
         IngestDocument ingestDocument = RandomDocumentPicks.randomIngestDocument(random(), document);
 
         TikaRecursiveProcessor processor = new TikaRecursiveProcessor(randomAlphaOfLength(10), "source_field", "target_field");
@@ -45,8 +65,5 @@ public class TikaRecursiveProcessorTests extends ESTestCase {
 
         assertThat(data, hasKey("target_field"));
         assertThat(data.get("target_field"), is("fancy source field content"));
-        // TODO add fancy assertions here
-
-        //System.out.println("BAR " + dateFormat.format(new Date()));
     }
 }

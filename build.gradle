@@ -32,20 +32,10 @@ esplugin {
 versions << [
   'elastic' : '7.3.1',
   'tika': '1.22',
-
-  'slf4j':'1.7.28',
-
-  'pdfbox': '2.0.16',
-  'poi': '4.0.1',
-  'mime4j': '0.8.3',
 ]
 
-// In this section you declare the dependencies for your production and test code
-// Note, the two dependencies are not really needed as the buildscript dependency gets them in already
-// they are just here as an example
 dependencies {
   configurations.all {
-      //resolutionStrategy.force "org.slf4j:slf4j-api:${versions.slf4j}"
       resolutionStrategy.force "joda-time:joda-time:2.10.2"
       resolutionStrategy.force "commons-codec:commons-codec:1.12"
       resolutionStrategy.force "org.slf4j:slf4j-api:1.7.26"
@@ -66,7 +56,6 @@ dependencies {
   }
 
   compile "org.elasticsearch:elasticsearch:${versions.elastic}"
-
   compile "org.apache.tika:tika-core:${versions.tika}"
   compile "org.apache.tika:tika-parsers:${versions.tika}"
   compile "org.apache.tika:tika-serialization:${versions.tika}"
@@ -74,22 +63,29 @@ dependencies {
   testCompile "org.elasticsearch.test:framework:${versions.elastic}"
 
   runtime "org.apache.tika:tika-parsers:${versions.tika}"
+  /* this will route slf4j logging into log4j, which is what elasticsearch uses */
+  runtime "org.apache.logging.log4j:log4j-slf4j-impl:2.11.1"
+
+  testCompile "commons-io:commons-io:2.6"  
+  testRuntime "commons-io:commons-io:2.6"
 }
+
+task printClasspath {
+    doLast {
+        configurations.testRuntime.each { println it }
+    }
+}
+
 
 // Set to false to not use elasticsearch checkstyle rules
 checkstyleMain.enabled = true
 checkstyleTest.enabled = true
 
-// FIXME dependency license check needs to be enabled
-dependencyLicenses.enabled = false
-
-// FIXME thirdparty audit needs to be enabled
-thirdPartyAudit.enabled = false
-
-// Uncomment this to skip license header checks
-// licenseHeaders.enabled = false
+dependencyLicenses.enabled = true
+thirdPartyAudit.enabled = true
 
 test {
   jvmArgs '-Djava.net.preferIPv4Stack=true'
   testLogging.showStandardStreams = true
+  systemProperties 'java.security.policy': file("$projectDir/src/main/plugin-metadata/plugin-security.policy").absolutePath
 }
