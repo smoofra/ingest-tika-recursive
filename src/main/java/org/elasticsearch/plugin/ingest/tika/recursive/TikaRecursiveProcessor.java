@@ -34,12 +34,14 @@ import org.apache.tika.parser.ParserDecorator;
 import org.elasticsearch.ingest.AbstractProcessor;
 import org.elasticsearch.ingest.IngestDocument;
 import org.elasticsearch.ingest.Processor;
+import org.xml.sax.ContentHandler;
 
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -49,16 +51,11 @@ import static org.elasticsearch.ingest.ConfigurationUtils.readStringProperty;
 public class TikaRecursiveProcessor extends AbstractProcessor {
 
     public static final String TYPE = "tika_recursive";
-
-    private final String field;
-    private final String targetField;
     private final Tika tika;
 
 
-    public TikaRecursiveProcessor(String tag, String field, String targetField) throws IOException {
+    public TikaRecursiveProcessor(String tag) throws IOException {
         super(tag);
-        this.field = field;
-        this.targetField = targetField;
         this.tika = new Tika();
     }
 
@@ -72,21 +69,40 @@ public class TikaRecursiveProcessor extends AbstractProcessor {
         byte[] bytes = ingestDocument.getFieldValueAsBytes("data");
 
         ingestDocument.setFieldValue("FOO", "BAR");
-
-        RecursiveParserWrapper wrapper = new RecursiveParserWrapper(tika.getParser());
+                
         BasicContentHandlerFactory factory = new BasicContentHandlerFactory(BasicContentHandlerFactory.HANDLER_TYPE.HTML, -1);
-        RecursiveParserWrapperHandler handler =  new RecursiveParserWrapperHandler(factory, -1);
         Metadata metadata = new Metadata();
         ParseContext ctx = new ParseContext();
-        wrapper.parse(new ByteArrayInputStream(bytes), handler, metadata, ctx);
+
+        RecursiveParserWrapperHandler wrapperHandler =  new RecursiveParserWrapperHandler(factory, -1);
+        RecursiveParserWrapper wrapper = new RecursiveParserWrapper(tika.getParser());
+        wrapper.parse(new ByteArrayInputStream(bytes), wrapperHandler, metadata, ctx);
+
+        List<Metadata> metadatas = wrapperHandler.getMetadataList();
+        Iterator<Metadata> i = metadatas.iterator();
+        Metadata rootMetadata = i.next();
+        
+        for (String name : rootMetadata.names()) { 
+            boolean first = true;
+            for (String value : rootMetadata.getValues(name)) { 
+                if (first) { 
+                    ingestDocument.setFieldValue(name, value);
+                } else { 
+                    ingestDocument.appendFieldValue(name, value);
+                }
+                first = false;
+            }
+        }
+
+        while (i.hasNext()) { 
+            Metadata attachment = i.next();
+        }
 
         Writer writer = new OutputStreamWriter(System.out);
         JsonMetadataList.setPrettyPrinting(true);
-        JsonMetadataList.toJson(handler.getMetadataList(), writer);
+        JsonMetadataList.toJson(metadatas, writer);
         writer.flush();
 
-        String content = ingestDocument.getFieldValue(field, String.class);
-        ingestDocument.setFieldValue(targetField, content);
         return ingestDocument;
     }
 
@@ -96,14 +112,10 @@ public class TikaRecursiveProcessor extends AbstractProcessor {
     }
 
     public static final class Factory implements Processor.Factory {
-
         @Override
         public TikaRecursiveProcessor create(Map<String, Processor.Factory> factories, String tag, Map<String, Object> config)
             throws Exception {
-            String field = readStringProperty(TYPE, tag, config, "field");
-            String targetField = readStringProperty(TYPE, tag, config, "target_field", "default_field_name");
-
-            return new TikaRecursiveProcessor(tag, field, targetField);
+            return new TikaRecursiveProcessor(tag);
         }
     }
 }

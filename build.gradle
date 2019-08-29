@@ -4,9 +4,25 @@ buildscript {
     mavenCentral()
     jcenter()
   }
-
   dependencies {
-    classpath "org.elasticsearch.gradle:build-tools:7.3.1"
+    ext.vers = [
+      "elastic" : "7.3.1-SNAPSHOT",
+    ]
+    classpath "org.elasticsearch.gradle:build-tools:${ext.vers.elastic}"
+    /* 
+     * To build this against a local build of elasticsearch, do this:
+     * 
+     * cd ~/src/elasticsearch
+     * ./gradlew publishNebulaPublicationToMavenLocal
+     * 
+     * That will publish elastic's jars to ~/.m2 and mavenLocal() will 
+     * pick them up from there.
+     * Then change the version above to 7.3.1-SNAPSHOT.
+     * 
+     * To just republish the build-tools and not all of elastic, use:
+     *
+     * ./gradlew :build-tools:publishNebulaPublicationToMavenLocal
+     */
   }
 }
 
@@ -17,6 +33,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'elasticsearch.esplugin'
+
 
 licenseFile = rootProject.file('LICENSE.txt')
 noticeFile = rootProject.file('NOTICE.txt')
@@ -30,16 +47,22 @@ esplugin {
 }
 
 versions << [
-  'elastic' : '7.3.1',
+  'elastic' : buildscript.dependencies.ext.vers.elastic,
   'tika': '1.22',
+  'slf4j': '1.7.26'
 ]
 
 dependencies {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+  }
   configurations.all {
       resolutionStrategy.force "joda-time:joda-time:2.10.2"
       resolutionStrategy.force "commons-codec:commons-codec:1.12"
-      resolutionStrategy.force "org.slf4j:slf4j-api:1.7.26"
-      resolutionStrategy.force "org.slf4j:jcl-over-slf4j:1.7.26"
+      resolutionStrategy.force "org.slf4j:slf4j-api:${versions.slf4j}"
+      resolutionStrategy.force "org.slf4j:jcl-over-slf4j:${versions.slf4j}"
       resolutionStrategy.force "com.google.guava:guava:28.0-jre"
       resolutionStrategy.force "com.google.protobuf:protobuf-java:3.9.0"
       resolutionStrategy.force "org.apache.httpcomponents:httpclient:4.5.9"
@@ -47,9 +70,10 @@ dependencies {
       resolutionStrategy.force "org.apache.httpcomponents:httpcore:4.4.11"
       resolutionStrategy.force "com.fasterxml.jackson.core:jackson-core:2.9.9"
 
+
       resolutionStrategy.dependencySubstitution {
         substitute module('net.java.dev.jna:jna') with module('org.elasticsearch:jna:4.5.1')
-        substitute module('commons-logging:commons-logging') with module("org.slf4j:jcl-over-slf4j:1.7.26")
+        substitute module('commons-logging:commons-logging') with module("org.slf4j:jcl-over-slf4j:${versions.slf4j}")
         substitute module('c3p0:c3p0') with module ("com.mchange:c3p0:0.9.5.4")
         substitute module('com.sun.activation:jakarta.activation') with module ("jakarta.activation:jakarta.activation-api:1.2.1")
       }
@@ -68,6 +92,12 @@ dependencies {
 
   testCompile "commons-io:commons-io:2.6"  
   testRuntime "commons-io:commons-io:2.6"
+
+  testCompile 'org.apache.commons:commons-text:1.6'
+  
+  //testCompile "commons-lang:commons-lang:2.6"  
+  //testRuntime "commons-lang:commons-lang:2.6"
+
 }
 
 task printClasspath {

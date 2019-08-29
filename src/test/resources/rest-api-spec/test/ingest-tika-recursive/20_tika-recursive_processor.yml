@@ -9,8 +9,6 @@
             "processors": [
               {
                 "tika_recursive" : {
-                  "field" : "field1",
-                  "target_field" : "field2"
                 }
               }
             ]
@@ -18,18 +16,25 @@
   - match: { acknowledged: true }
 
   - do:
+      search:
+        body: { "query": {"match_all": {}}}
+  - match: { hits.total.value: 0 }
+
+  - do:
       index:
         index: test
         type: test
         id: 1
         pipeline: "my_pipeline"
-        body: {field1: "my_value"}
+        body: {data: "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGRlbmlxdWUgcXVhZXJlbmR1bSBwcmkgaW4K"}
 
   - do:
       get:
         index: test
-        type: test
         id: 1
-  - match: { _source.field1: "my_value" }
-  - match: { _source.field2: "my_value" }
+  - match: { _source.data: "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGRlbmlxdWUgcXVhZXJlbmR1bSBwcmkgaW4K" }
 
+  - do:
+      search:
+        body: { "query": {"match_all": {}}}
+  - match: { hits.total.value: 1 }

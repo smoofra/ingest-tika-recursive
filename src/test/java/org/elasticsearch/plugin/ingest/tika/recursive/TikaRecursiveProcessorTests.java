@@ -26,12 +26,15 @@ import org.elasticsearch.test.ESTestCase;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
 
 public class TikaRecursiveProcessorTests extends ESTestCase {
 
@@ -39,31 +42,36 @@ public class TikaRecursiveProcessorTests extends ESTestCase {
       byte[] bytes = "Hello, I am just a simple string".getBytes();
 
       Map<String, Object> document = new HashMap<>();
-      document.put("source_field", "fancy source field content");
       document.put("data", bytes);
       IngestDocument ingestDocument = RandomDocumentPicks.randomIngestDocument(random(), document);
 
-      TikaRecursiveProcessor processor = new TikaRecursiveProcessor(randomAlphaOfLength(10), "source_field", "target_field");
+      TikaRecursiveProcessor processor = new TikaRecursiveProcessor(randomAlphaOfLength(10));
       Map<String, Object> data = processor.execute(ingestDocument).getSourceAndMetadata();
 
-      assertNotNull(data);
+      assertThat((String) data.get("X-TIKA:content"), containsString("I am just a simple string"));
     }
 
-    public void testThatProcessorWorks() throws Exception {
-        //DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        //System.out.println("FOOOO " + dateFormat.format(new Date()));
-
+    public void testEmailWithTarball() throws Exception {
         byte[] bytes = IOUtils.toByteArray(TikaRecursiveProcessorTests.class.getResourceAsStream("/lol.eml"));
 
         Map<String, Object> document = new HashMap<>();
-        document.put("source_field", "fancy source field content");
         document.put("data", bytes);
         IngestDocument ingestDocument = RandomDocumentPicks.randomIngestDocument(random(), document);
 
-        TikaRecursiveProcessor processor = new TikaRecursiveProcessor(randomAlphaOfLength(10), "source_field", "target_field");
+        TikaRecursiveProcessor processor = new TikaRecursiveProcessor(randomAlphaOfLength(10));
         Map<String, Object> data = processor.execute(ingestDocument).getSourceAndMetadata();
 
-        assertThat(data, hasKey("target_field"));
-        assertThat(data.get("target_field"), is("fancy source field content"));
+        // for (String key : ingestDocument.getSourceAndMetadata().keySet()) {
+        //   System.out.print("K " + key);
+        // }
+
+        assertThat(data, hasKey("X-TIKA:content"));
+        assertThat(data, hasKey("subject"));
+        assertThat(data.get("subject"), is("lol ololool"));
+        assertThat(data.get("Message:From-Email"), is("larry@elder-gods.org"));
+
+        @SuppressWarnings("unchecked")
+        List<Object> list = (List<Object>) data.get("Message:Raw-Header:Received");
+        assertThat(list.size(), is(3));
     }
 }

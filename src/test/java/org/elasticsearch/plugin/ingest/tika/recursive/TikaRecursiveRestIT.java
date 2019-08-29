@@ -24,7 +24,7 @@ import org.elasticsearch.test.rest.yaml.ESClientYamlSuiteTestCase;
 
 public class TikaRecursiveRestIT extends ESClientYamlSuiteTestCase {
 
-    public TikaRecursiveRestIT(@Name("yaml") ClientYamlTestCandidate testCandidate) {
+    public TikaRecursiveRestIT(@Name("yaml") ClientYamlTestCandidate testCandidate) throws Exception {
         super(testCandidate);
     }
 
