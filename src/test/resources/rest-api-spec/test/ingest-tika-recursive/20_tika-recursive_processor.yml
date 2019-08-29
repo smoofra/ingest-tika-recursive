@@ -17,13 +17,20 @@
 
   - do:
       search:
-        body: { "query": {"match_all": {}}}
+        body: >
+          { 
+            "query": { 
+              "query_string" : {
+                "query" : "Lorem",
+                "default_field" : "X-TIKA:content"
+              }
+            }
+          }
   - match: { hits.total.value: 0 }
 
   - do:
       index:
         index: test
-        type: test
         id: 1
         pipeline: "my_pipeline"
         body: {data: "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGRlbmlxdWUgcXVhZXJlbmR1bSBwcmkgaW4K"}
@@ -35,6 +42,17 @@
   - match: { _source.data: "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGRlbmlxdWUgcXVhZXJlbmR1bSBwcmkgaW4K" }
 
   - do:
+      indices.refresh: {}
+
+  - do:
       search:
-        body: { "query": {"match_all": {}}}
+        body: >
+          { 
+            "query": { 
+              "query_string" : {
+                "query" : "Lorem",
+                "default_field" : "X-TIKA:content"
+              }
+            }
+          }
   - match: { hits.total.value: 1 }
