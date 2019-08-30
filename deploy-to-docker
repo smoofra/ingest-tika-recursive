@@ -1,0 +1,10 @@
+#!/bin/bash
+
+
+set -e
+gradle assemble
+docker cp build/distributions/ingest-tika-recursive-0.0.1-SNAPSHOT.zip elasticsearch:/tmp/
+docker exec  elasticsearch elasticsearch-plugin remove ingest-tika-recursive || true
+docker exec  elasticsearch elasticsearch-plugin install --batch file:///tmp/ingest-tika-recursive-0.0.1-SNAPSHOT.zip
+docker restart elasticsearch
+docker restart kibana

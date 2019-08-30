@@ -17,9 +17,7 @@
 
 package org.elasticsearch.plugin.ingest.tika.recursive;
 
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
+
 import org.elasticsearch.ingest.IngestDocument;
 import org.elasticsearch.ingest.RandomDocumentPicks;
 import org.elasticsearch.test.ESTestCase;
@@ -27,10 +25,8 @@ import org.elasticsearch.test.ESTestCase;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.text.StringEscapeUtils;
 
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
@@ -60,10 +56,6 @@ public class TikaRecursiveProcessorTests extends ESTestCase {
 
         TikaRecursiveProcessor processor = new TikaRecursiveProcessor(randomAlphaOfLength(10));
         Map<String, Object> data = processor.execute(ingestDocument).getSourceAndMetadata();
-
-        // for (String key : ingestDocument.getSourceAndMetadata().keySet()) {
-        //   System.out.print("K " + key);
-        // }
 
         assertThat(data, hasKey("X-TIKA:content"));
         assertThat(data, hasKey("subject"));

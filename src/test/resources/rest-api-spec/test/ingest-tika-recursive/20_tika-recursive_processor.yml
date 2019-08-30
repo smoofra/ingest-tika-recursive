@@ -16,6 +16,16 @@
   - match: { acknowledged: true }
 
   - do:
+      indices.create:
+        index: test
+        body:
+          mappings:
+            properties:
+              "X-TIKA:embedded_resources":
+                type: nested
+
+
+  - do:
       search:
         body: >
           { 
@@ -56,3 +66,52 @@
             }
           }
   - match: { hits.total.value: 1 }
+
+  - do:
+      index:
+        index: test
+        id: 2
+        pipeline: "my_pipeline"
+        body:
+          data: UmV0dXJuLVBhdGg6IDxsYXJyeUBlbGRlci1nb2RzLm9yZz4NClJlY2VpdmVkOiBmcm9tIGltYXBiMDE3Lm15a29sYWIuY29tIChbdW5peCBzb2NrZXRdKQ0KCSBieSBpbWFwYjAxNy5teWtvbGFiLmNvbSAoQ3lydXMgMi41LjExLTQxLWdkNTM0MDZmM2YtS29sYWItMi41LjExLTE1LjEuZWw3LmtvbGFiXzE2KSB3aXRoIExNVFBBOw0KCSBTdW4sIDI1IEF1ZyAyMDE5IDA0OjMwOjQ1ICswMjAwDQpYLVNpZXZlOiBDTVUgU2lldmUgMi40DQpSZWNlaXZlZDogZnJvbSBpbnQtbXgwMDIubXlrb2xhYi5jb20gKHVua25vd24gWzEwLjkuMTMuMl0pDQoJYnkgaW1hcGIwMTcubXlrb2xhYi5jb20gKFBvc3RmaXgpIHdpdGggRVNNVFBTIGlkIDkwNEZGMzAzDQoJZm9yIDxsYXJyeUBlbGRlci1nb2RzLm9yZz47IFN1biwgMjUgQXVnIDIwMTkgMDQ6MzA6NDUgKzAyMDAgKENFU1QpDQpSZWNlaXZlZDogZnJvbSBleHQtc3VibTAwMy5teWtvbGFiLmNvbSAodW5rbm93biBbMTAuOS42LjNdKQ0KCWJ5IGludC1teDAwMi5teWtvbGFiLmNvbSAoUG9zdGZpeCkgd2l0aCBFU01UUFMgaWQgNzlGNTE0MDVGDQoJZm9yIDxsYXJyeUBlbGRlci1nb2RzLm9yZz47IFN1biwgMjUgQXVnIDIwMTkgMDQ6MzA6NDUgKzAyMDAgKENFU1QpDQpGcm9tOiBMYXdyZW5jZSBEJ0FubmEgPGxhcnJ5QGVsZGVyLWdvZHMub3JnPg0KQ29udGVudC1UeXBlOiBtdWx0aXBhcnQvbWl4ZWQ7DQoJYm91bmRhcnk9IkFwcGxlLU1haWw9X0FFMUQ3OUM2LUIzRTAtNDhGRi04QTRELTQ4NUEyQjYzNUM1RiINCk1pbWUtVmVyc2lvbjogMS4wIChNYWMgT1MgWCBNYWlsIDEzLjAgXCgzNTY0XCkpDQpTdWJqZWN0OiBsb2wgb2xvbG9vbA0KTWVzc2FnZS1JZDogPDIyRTk3Q0E0LUMyNEQtNDY0OC1CQjcwLTZCMzAzRDBFMzgzMEBlbGRlci1nb2RzLm9yZz4NCkRhdGU6IFNhdCwgMjQgQXVnIDIwMTkgMTk6MzA6NDAgLTA3MDANClRvOiBMYXdyZW5jZSBEJ0FubmEgPGxhcnJ5QGVsZGVyLWdvZHMub3JnPg0KDQoNCi0tQXBwbGUtTWFpbD1fQUUxRDc5QzYtQjNFMC00OEZGLThBNEQtNDg1QTJCNjM1QzVGDQpDb250ZW50LURpc3Bvc2l0aW9uOiBhdHRhY2htZW50Ow0KCWZpbGVuYW1lPWZvby50Z3oNCkNvbnRlbnQtVHlwZTogYXBwbGljYXRpb24vb2N0ZXQtc3RyZWFtOw0KCXgtdW5peC1tb2RlPTA2NDQ7DQoJbmFtZT0iZm9vLnRneiINCkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IGJhc2U2NA0KDQpINHNJQUpUeVlWMEFBKzNUdXdyQ01CUUc0TXcreGNFSDBIT2F5N0dEZ3c3aXBqaTZTTEJSQksxU0szYjBtZDBGcS9VQzF0RWlZajRJDQpPU1FaL2d6LzBHWjlaeU9YTkdmcmRTUE5VdkY1aUdpVUFzRlhJRkJKa2dGY3pndWFnYVNXS0prQ0lrQmlNaVFncXlCTHlXNmIyaVNQDQpzclQ3eE1WVE40bHNITnZ5Tzd2WkxOMWsvdWFtVVB3RUh2dVBJSWJkSW1xSGlsckVVbUpOSXF6U3hjcTFTUnZEaUdUQ2hqRklBUWRHDQoxNzRkMS91dzZsci9kTy8vSVo5YjlkT3gxSDlTTC8zWHJGQUFWcHJxNXMvNzN4c01vTnNaNVd2c3krMTVudmRIenVzaDdBMEFEQUFBDQotLUFwcGxlLU1haWw9X0FFMUQ3OUM2LUIzRTAtNDhGRi04QTRELTQ4NUEyQjYzNUM1Ri0tDQo=
+
+  - do:
+      get:
+        index: test
+        id: 2
+  - length: {"_source.X-TIKA:embedded_resources": 3}
+
+  - do:
+      indices.refresh: {}
+
+  - do:
+      search:
+        body: >
+          {
+            "_source": false,
+            "query": {
+              "nested": {
+                "inner_hits":{},
+                "path": "X-TIKA:embedded_resources",
+                "query": {
+                  "query_string":{
+                    "query" : "FOO BAR BAZ",
+                    "default_field" : "X-TIKA:embedded_resources.X-TIKA:content"
+                  }
+                }
+              }
+            }
+          }
+  - match: { hits.total.value: 1 }
+  - match: { "hits.hits.0.inner_hits.X-TIKA:embedded_resources.hits.total.value": 1}
+  - match: { "hits.hits.0.inner_hits.X-TIKA:embedded_resources.hits.hits.0._source.resourceName": "foo.txt"}
+
+  - do:
+      search:
+        body: >
+          {
+            "query": {
+              "match_all" : {}
+            }
+          }
+  - match: { hits.total.value: 2 }

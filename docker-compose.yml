@@ -1,0 +1,23 @@
+# ./docker-compose.yml
+
+# you can use this docker-compose and ./deploy-to-docker for local interactive testing
+
+version: '3'
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.3.1
+    environment:
+      SERVER_NAME: localhost
+      ELASTICSEARCH_URL: http://elasticsearch:9200/
+    ports:
+      - "5601:5601"
