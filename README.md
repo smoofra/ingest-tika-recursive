@@ -1,6 +1,8 @@
 # Recursive Tika Ingest Processor for Elasticsearch
 
-This is similar to the `ingest-attachment` processor, except it also recursivly parses inner resources, like attachments or files within an zip archive.
+This is similar to the `ingest-attachment` processor, except it also recursively parses inner resources, like attachments or files within an zip archive.
+
+It expects to ingest a document with only one key, `"data"`, which should contain a byte array or base64 representation of the file you want it to parse.   The metadata for the outer file is added to the document at the top level.   All the inner resources are added to an array under "X-TIKA:embedded_resources".
 
 ## Usage
 
@@ -114,6 +116,6 @@ bin/elasticsearch-plugin install file:///path/to/ingest-tika-recursive/build/dis
 
 ## Bugs & TODO
 
-* Unlike `ingest-attachment`, this runs the full set of Tika parsers, and with full java permissions.   It is thus more unsafe to run on untrusted data, particularly if elasticsearch itself is running in a priviledged environment.
+* Unlike `ingest-attachment`, this runs the full set of Tika parsers, and with full java permissions.   It is thus more unsafe to run on untrusted data, particularly if elasticsearch itself is running in a privileged environment.
 
 
